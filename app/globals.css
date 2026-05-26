@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #111B27;
+  --color-cloud: #F6F8FC;
+  --color-amber: #FBBF24;
+}
+
+html, body {
+  background: var(--color-cloud);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-amber px-7 py-3.5 font-display font-bold text-ink shadow-glow transition hover:bg-amber-hover active:bg-amber-pressed disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  /* Donor-facing CTA: black bg / white text, consistent regardless of org accent */
+  .btn-ink {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#000000] px-7 py-3.5 font-display font-bold text-[#ffffff] transition hover:bg-[#1a1a1a] active:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-7 py-3.5 font-display font-bold text-ink transition hover:bg-ink hover:text-cloud disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-tertiary {
+    @apply inline-flex items-center gap-1 font-display font-bold text-ink underline underline-offset-4 hover:text-amber-pressed;
+  }
+  .card {
+    @apply rounded-3xl bg-white shadow-card;
+  }
+  .surface-ink {
+    background: linear-gradient(180deg, #0B1320 0%, #111B27 50%, #0B1320 100%);
+  }
+  .input-base {
+    @apply w-full rounded-2xl border border-muted-soft bg-white px-5 py-4 font-sans text-ink placeholder:text-muted focus:border-amber focus:outline-none focus:ring-4 focus:ring-amber/20 transition;
+  }
+  .label-base {
+    @apply block font-display font-bold text-sm uppercase tracking-wide text-ink/70 mb-2;
+  }
+}
+
+/* Soft amber radial glow used behind hero numbers */
+.glow-amber {
+  background-image: radial-gradient(circle at 50% 50%, rgba(251,191,36,0.35) 0%, rgba(251,191,36,0) 60%);
+}
+
+/* hides number input spinners */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
