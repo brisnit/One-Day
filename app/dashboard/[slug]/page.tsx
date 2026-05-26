@@ -54,7 +54,7 @@ export default function CampaignDashboardPage() {
           <p className="font-display font-bold text-sm uppercase tracking-[0.18em] text-amber-pressed">
             {campaign.orgName}
           </p>
-          <h1 className="mt-2 font-display font-black text-h2 leading-tight">
+          <h1 className="mt-2 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight break-words">
             {campaign.campaignName}
           </h1>
           {campaign.visionStatement && (

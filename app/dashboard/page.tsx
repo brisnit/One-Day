@@ -34,7 +34,7 @@ export default function DashboardIndexPage() {
             <p className="font-display font-bold text-sm uppercase tracking-[0.18em] text-amber-pressed">
               Campaign Dashboard
             </p>
-            <h1 className="mt-2 font-display font-black text-h2 leading-tight">
+            <h1 className="mt-2 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight">
               Your campaigns
             </h1>
           </div>
