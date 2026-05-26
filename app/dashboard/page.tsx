@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { listCampaigns } from "@/lib/storage";
+import { deleteCampaign, listCampaigns } from "@/lib/storage";
 import type { Campaign } from "@/lib/types";
 
 export default function DashboardIndexPage() {
@@ -13,6 +13,17 @@ export default function DashboardIndexPage() {
   useEffect(() => {
     setCampaigns(listCampaigns());
   }, []);
+
+  function handleDelete(e: React.MouseEvent, c: Campaign) {
+    e.preventDefault();
+    e.stopPropagation();
+    const ok = window.confirm(
+      `Delete "${c.campaignName}"?\n\nThis removes it from your browser. Anyone who already has the campaign link will see a "Campaign not found" message.`
+    );
+    if (!ok) return;
+    deleteCampaign(c.slug);
+    setCampaigns(listCampaigns());
+  }
 
   return (
     <main>
@@ -37,10 +48,10 @@ export default function DashboardIndexPage() {
         ) : (
           <ul className="grid md:grid-cols-2 gap-4">
             {campaigns.map((c) => (
-              <li key={c.slug}>
+              <li key={c.slug} className="relative">
                 <Link href={`/dashboard/${c.slug}`} className="card p-7 block hover:shadow-glow transition">
-                  <p className="text-xs uppercase tracking-[0.18em] text-ink/50">{c.orgName}</p>
-                  <h3 className="mt-1 font-display font-bold text-xl">{c.campaignName}</h3>
+                  <p className="text-xs uppercase tracking-[0.18em] text-ink/50 pr-10">{c.orgName}</p>
+                  <h3 className="mt-1 font-display font-bold text-xl pr-10">{c.campaignName}</h3>
                   <p className="mt-3 text-sm text-ink/60 line-clamp-2">{c.visionStatement || "No vision statement yet."}</p>
                   <div className="mt-5 flex items-center justify-between text-xs">
                     <span className="font-mono text-ink/50">/c/{c.slug}</span>
@@ -49,6 +60,32 @@ export default function DashboardIndexPage() {
                     </span>
                   </div>
                 </Link>
+                {/* Delete — absolutely positioned, stops propagation so the card link isn't fired */}
+                <button
+                  type="button"
+                  onClick={(e) => handleDelete(e, c)}
+                  className="absolute top-4 right-4 p-2 rounded-full text-ink/35 hover:text-coral hover:bg-coral/10 transition"
+                  aria-label={`Delete campaign ${c.campaignName}`}
+                  title="Delete campaign"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                  </svg>
+                </button>
               </li>
             ))}
           </ul>
