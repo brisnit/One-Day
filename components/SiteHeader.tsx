@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
+import MobileMenu, { type NavLink } from "./MobileMenu";
 
-const NAV = [
+const NAV: NavLink[] = [
   { href: "/",                  label: "Home" },
   { href: "/how-it-works",      label: "How it works" },
   { href: "/for-organizations", label: "For organizations" },
@@ -15,10 +16,19 @@ export default function SiteHeader({ variant = "public" }: { variant?: "public" 
   const pathname = usePathname();
   return (
     <header className="w-full">
-      <div className="mx-auto max-w-6xl px-6 pt-8 pb-4">
-        <Logo size="md" centered />
+      <div className="relative mx-auto max-w-6xl px-6 pt-8 pb-4">
+        {/* Mobile hamburger — top right, hidden on md+ */}
         {variant === "public" && (
-          <nav className="mt-6 flex justify-center gap-8 font-sans text-sm">
+          <div className="absolute right-4 top-6 sm:right-6">
+            <MobileMenu links={NAV} />
+          </div>
+        )}
+
+        <Logo size="md" centered />
+
+        {/* Desktop nav — hidden on mobile */}
+        {variant === "public" && (
+          <nav className="mt-6 hidden md:flex justify-center gap-8 font-sans text-sm">
             {NAV.map((item) => {
               const active = pathname === item.href;
               return (

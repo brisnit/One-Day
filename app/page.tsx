@@ -1,22 +1,36 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import SiteFooter from "@/components/SiteFooter";
+import MobileMenu, { type NavLink } from "@/components/MobileMenu";
+
+const HOMEPAGE_NAV: NavLink[] = [
+  { href: "/how-it-works",      label: "How it works" },
+  { href: "/for-organizations", label: "For organizations" },
+  { href: "/start",             label: "Start a campaign" },
+];
 
 export default function HomePage() {
   return (
     <main>
-      {/* Top nav — black bar, centered links */}
+      {/* Top nav — black bar; centered links on desktop, hamburger on mobile */}
       <nav className="w-full bg-ink text-cloud">
-        <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-center gap-8 md:gap-12">
-          <Link href="/how-it-works" className="font-sans text-sm text-cloud/90 hover:text-amber transition">
-            How it works
-          </Link>
-          <Link href="/for-organizations" className="font-sans text-sm text-cloud/90 hover:text-amber transition">
-            For organizations
-          </Link>
-          <Link href="/start" className="font-sans text-sm text-cloud/90 hover:text-amber transition">
-            Start a campaign
-          </Link>
+        <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between md:justify-center gap-8 md:gap-12">
+          {/* Mobile: small wordmark on the left so the bar isn't empty */}
+          <span className="font-display font-bold text-xs uppercase tracking-[0.18em] text-cloud/80 md:hidden">
+            One Day Offering
+          </span>
+          {/* Desktop links */}
+          {HOMEPAGE_NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="hidden md:inline font-sans text-sm text-cloud/90 hover:text-amber transition"
+            >
+              {item.label}
+            </Link>
+          ))}
+          {/* Mobile hamburger */}
+          <MobileMenu links={HOMEPAGE_NAV} buttonClassName="text-cloud" />
         </div>
       </nav>
 
