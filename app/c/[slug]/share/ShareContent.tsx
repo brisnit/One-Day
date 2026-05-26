@@ -94,7 +94,7 @@ export default function SharePage() {
           <p className="font-display font-bold text-sm uppercase tracking-[0.2em] text-amber-pressed">
             Share Your One Day
           </p>
-          <h1 className="mt-3 font-display font-black text-h2 leading-tight">
+          <h1 className="mt-3 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight">
             Invite someone else to <span className="text-amber-pressed">calculate theirs.</span>
           </h1>
           <p className="mt-3 text-ink/60 max-w-xl mx-auto">

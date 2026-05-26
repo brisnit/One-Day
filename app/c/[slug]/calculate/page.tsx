@@ -113,7 +113,7 @@ export default function CalculatePage() {
           <p className="font-display font-bold text-sm uppercase tracking-[0.2em]" style={{ color: accent }}>
             {campaign.campaignName}
           </p>
-          <h1 className="mt-3 font-display font-black text-h2 leading-tight">
+          <h1 className="mt-3 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight">
             What&apos;s your <span style={{ color: accent }}>one day</span> worth?
           </h1>
           <p className="mt-3 text-ink/60 max-w-xl mx-auto">
@@ -223,7 +223,7 @@ export default function CalculatePage() {
                    style={{ background: `radial-gradient(circle at 50% 0%, ${accent}55, transparent 60%)` }} />
               <div className="relative">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-cloud/60">Your One Day Offering</p>
-                <p className="mt-3 font-display font-black leading-none" style={{ color: accent, fontSize: 56 }}>
+                <p className="mt-3 font-display font-black leading-none text-[44px] sm:text-[56px] break-words" style={{ color: accent }}>
                   {ready ? formatCurrency(result.oneDayOffering) : "$—"}
                 </p>
                 <div className="mt-6 grid grid-cols-2 gap-3 text-sm">

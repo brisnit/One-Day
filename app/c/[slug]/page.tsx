@@ -96,7 +96,7 @@ export default function CampaignLandingPage() {
           </div>
 
           <h1
-            className="mt-10 font-display font-black text-[44px] md:text-[64px] leading-[1.05]"
+            className="mt-10 font-display font-black text-[36px] sm:text-[44px] md:text-[64px] leading-[1.05]"
             style={{ color: "#000000" }}
           >
             Discover what one day can do
@@ -108,11 +108,17 @@ export default function CampaignLandingPage() {
             One day of your work can become a meaningful act of generosity.
           </p>
 
-          <div className="mt-9 flex flex-wrap justify-center gap-3">
-            <Link href={`/c/${campaign.slug}/calculate`} className="btn-ink">
+          <div className="mt-9 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 max-w-md sm:max-w-none mx-auto">
+            <Link
+              href={`/c/${campaign.slug}/calculate`}
+              className="btn-ink w-full sm:w-auto"
+            >
               Calculate my one day offering →
             </Link>
-            <Link href={`/c/${campaign.slug}/family`} className="btn-secondary">
+            <Link
+              href={`/c/${campaign.slug}/family`}
+              className="btn-secondary w-full sm:w-auto"
+            >
               Household Calculator
             </Link>
           </div>
@@ -170,15 +176,15 @@ export default function CampaignLandingPage() {
             Ready?
           </p>
           <h2
-            className="mt-3 font-display font-black text-h2 leading-tight"
+            className="mt-3 font-display font-black text-[28px] sm:text-[36px] md:text-h2 leading-tight"
             style={{ color: onAccent }}
           >
             One day of your work can change someone&rsquo;s forever
           </h2>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 max-w-md sm:max-w-none mx-auto">
             <Link
               href={`/c/${campaign.slug}/calculate`}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#000000] border border-[#ffffff] px-7 py-3.5 font-display font-bold text-[#ffffff] transition hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#000000] border border-[#ffffff] px-6 sm:px-7 py-3.5 font-display font-bold text-[#ffffff] transition hover:opacity-90 w-full sm:w-auto"
             >
               Calculate my one day offering →
             </Link>
@@ -186,7 +192,7 @@ export default function CampaignLandingPage() {
               href={campaign.givingLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ffffff] border border-[#000000] px-7 py-3.5 font-display font-bold text-[#000000] transition hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ffffff] border border-[#000000] px-6 sm:px-7 py-3.5 font-display font-bold text-[#000000] transition hover:opacity-90 w-full sm:w-auto"
             >
               I know my gift amount — Give Now
             </a>

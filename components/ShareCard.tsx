@@ -18,7 +18,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
   return (
     <div
       ref={ref}
-      className="relative mx-auto w-[360px] aspect-[3/4] rounded-3xl overflow-hidden text-cloud surface-ink shadow-card"
+      className="relative mx-auto w-full max-w-[360px] aspect-[3/4] rounded-3xl overflow-hidden text-cloud surface-ink shadow-card"
       style={{ fontFamily: "Roboto, Inter, system-ui, sans-serif" }}
     >
       <div className="absolute inset-0 opacity-60 glow-amber" />

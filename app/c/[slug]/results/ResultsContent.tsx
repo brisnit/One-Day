@@ -73,14 +73,14 @@ export default function ResultsPage() {
       </header>
 
       <section className="mx-auto max-w-3xl px-6 pt-6 pb-16">
-        <div className="card surface-ink text-cloud p-10 md:p-14 relative overflow-hidden text-center">
+        <div className="card surface-ink text-cloud p-6 sm:p-10 md:p-14 relative overflow-hidden text-center">
           <div className="absolute inset-0 opacity-60"
                style={{ background: `radial-gradient(circle at 50% 20%, ${accent}66 0%, transparent 60%)` }} />
           <div className="relative">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-cloud/60">{campaign.orgName} • {campaign.campaignName}</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-cloud/60 break-words">{campaign.orgName} • {campaign.campaignName}</p>
             <p className="mt-6 text-[12px] uppercase tracking-[0.2em] text-cloud/70">Your One Day Offering</p>
-            <p className="mt-3 font-display font-black leading-none"
-               style={{ color: accent, fontSize: 96 }}>
+            <p className="mt-3 font-display font-black leading-none text-[56px] sm:text-[72px] md:text-[96px]"
+               style={{ color: accent }}>
               {formatCurrency(amount)}
             </p>
             <p className="mt-8 font-display font-bold text-xl text-cloud/90 leading-relaxed">

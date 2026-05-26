@@ -100,7 +100,7 @@ export default function FamilyCalculatorPage() {
           <p className="font-display font-bold text-sm uppercase tracking-[0.2em]" style={{ color: accent }}>
             Household Calculator
           </p>
-          <h1 className="mt-3 font-display font-black text-h2 leading-tight">
+          <h1 className="mt-3 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight">
             One Day for the <span style={{ color: accent }}>whole household</span>.
           </h1>
           <p className="mt-3 text-ink/60 max-w-xl mx-auto">
@@ -187,8 +187,8 @@ export default function FamilyCalculatorPage() {
                    style={{ background: `radial-gradient(circle at 50% 0%, ${accent}55, transparent 60%)` }} />
               <div className="relative">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-cloud/60">Household One Day</p>
-                <p className="mt-3 font-display font-black leading-none"
-                   style={{ color: accent, fontSize: 56 }}>
+                <p className="mt-3 font-display font-black leading-none text-[44px] sm:text-[56px] break-words"
+                   style={{ color: accent }}>
                   {valid ? formatCurrency(oneDay) : "$—"}
                 </p>
                 <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
