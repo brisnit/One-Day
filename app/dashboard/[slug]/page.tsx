@@ -62,7 +62,7 @@ export default function CampaignDashboardPage() {
           )}
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6">
           <div className="space-y-4">
             <div className="card p-7">
               <h3 className="font-display font-bold text-lg">Campaign link</h3>

@@ -46,9 +46,9 @@ export default function DashboardIndexPage() {
         ) : campaigns.length === 0 ? (
           <EmptyState />
         ) : (
-          <ul className="grid md:grid-cols-2 gap-4">
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {campaigns.map((c) => (
-              <li key={c.slug} className="relative">
+              <li key={c.slug} className="relative min-w-0">
                 <Link href={`/dashboard/${c.slug}`} className="card p-7 block hover:shadow-glow transition overflow-hidden">
                   <p className="text-xs uppercase tracking-[0.18em] text-ink/50 pr-10 break-words">{c.orgName}</p>
                   <h3 className="mt-1 font-display font-bold text-xl pr-10 break-words">{c.campaignName}</h3>

@@ -66,7 +66,7 @@ export default function HomePage() {
 
       {/* Three feature cards */}
       <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             {
               title: "Simple math",
@@ -92,7 +92,7 @@ export default function HomePage() {
       {/* Big two-up card */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="card overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Left — light, copy + CTAs */}
             <div className="p-10 md:p-14">
               <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-amber-pressed">

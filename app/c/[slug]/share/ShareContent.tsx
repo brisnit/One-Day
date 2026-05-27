@@ -102,7 +102,7 @@ export default function SharePage() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-[400px_1fr] gap-8 items-start justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[400px_minmax(0,1fr)] gap-8 items-start justify-center">
           <div className="flex justify-center">
             <ShareCard ref={cardRef} campaign={campaign} offering={amount} shareUrl={shareUrl} />
           </div>

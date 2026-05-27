@@ -108,7 +108,7 @@ export default function FamilyCalculatorPage() {
           </p>
         </div>
 
-        <form onSubmit={onSubmit} className="grid lg:grid-cols-[1fr_360px] gap-8">
+        <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-8">
           <div className="card p-6 md:p-9">
             <ul className="space-y-4">
               {entries.map((entry, i) => (
