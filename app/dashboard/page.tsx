@@ -38,7 +38,7 @@ export default function DashboardIndexPage() {
               Your campaigns
             </h1>
           </div>
-          <Link href="/start" className="btn-primary">+ New Campaign</Link>
+          <Link href="/start" className="btn-primary w-full md:w-auto">+ New Campaign</Link>
         </div>
 
         {campaigns === null ? (
@@ -49,13 +49,13 @@ export default function DashboardIndexPage() {
           <ul className="grid md:grid-cols-2 gap-4">
             {campaigns.map((c) => (
               <li key={c.slug} className="relative">
-                <Link href={`/dashboard/${c.slug}`} className="card p-7 block hover:shadow-glow transition">
-                  <p className="text-xs uppercase tracking-[0.18em] text-ink/50 pr-10">{c.orgName}</p>
-                  <h3 className="mt-1 font-display font-bold text-xl pr-10">{c.campaignName}</h3>
+                <Link href={`/dashboard/${c.slug}`} className="card p-7 block hover:shadow-glow transition overflow-hidden">
+                  <p className="text-xs uppercase tracking-[0.18em] text-ink/50 pr-10 break-words">{c.orgName}</p>
+                  <h3 className="mt-1 font-display font-bold text-xl pr-10 break-words">{c.campaignName}</h3>
                   <p className="mt-3 text-sm text-ink/60 line-clamp-2">{c.visionStatement || "No vision statement yet."}</p>
-                  <div className="mt-5 flex items-center justify-between text-xs">
-                    <span className="font-mono text-ink/50">/c/{c.slug}</span>
-                    <span className="inline-flex items-center gap-1 font-display font-bold text-ink">
+                  <div className="mt-5 flex items-center justify-between gap-3 text-xs">
+                    <span className="font-mono text-ink/50 truncate min-w-0">/c/{c.slug}</span>
+                    <span className="inline-flex items-center gap-1 font-display font-bold text-ink shrink-0">
                       Open →
                     </span>
                   </div>
