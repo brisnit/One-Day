@@ -101,7 +101,7 @@ export default function StartCampaignPage() {
                 <input
                   id="org"
                   className="input-base"
-                  placeholder="Convoy of Hope"
+                  placeholder="Enter Church's Name"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                 />
