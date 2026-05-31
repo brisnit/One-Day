@@ -5,7 +5,7 @@ import MobileMenu, { type NavLink } from "@/components/MobileMenu";
 
 const HOMEPAGE_NAV: NavLink[] = [
   { href: "/how-it-works",      label: "How it works" },
-  { href: "/for-organizations", label: "For churches" },
+  { href: "/for-churches", label: "For churches" },
   { href: "/start",             label: "Start a campaign" },
 ];
 

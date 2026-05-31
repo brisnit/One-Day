@@ -25,7 +25,7 @@ const BENEFITS = [
   },
 ];
 
-export default function ForOrganizationsPage() {
+export default function ForChurchesPage() {
   return (
     <main>
       <SiteHeader />
