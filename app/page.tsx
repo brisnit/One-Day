@@ -5,7 +5,7 @@ import MobileMenu, { type NavLink } from "@/components/MobileMenu";
 
 const HOMEPAGE_NAV: NavLink[] = [
   { href: "/how-it-works",      label: "How it works" },
-  { href: "/for-organizations", label: "For organizations" },
+  { href: "/for-organizations", label: "For churches" },
   { href: "/start",             label: "Start a campaign" },
 ];
 
@@ -96,7 +96,7 @@ export default function HomePage() {
             {/* Left — light, copy + CTAs */}
             <div className="p-10 md:p-14">
               <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-amber-pressed">
-                For Organizations
+                For Churches
               </p>
               <h2 className="mt-4 font-display font-black text-h3 leading-tight">
                 Launch a branded One Day Offering campaign in minutes.

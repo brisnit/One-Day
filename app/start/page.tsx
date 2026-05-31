@@ -97,7 +97,7 @@ export default function StartCampaignPage() {
               title="Tell us about your campaign"
               subtitle="This appears at the top of your branded page and on the share card."
             >
-              <Field label="Organization name" htmlFor="org">
+              <Field label="Church name" htmlFor="org">
                 <input
                   id="org"
                   className="input-base"
@@ -115,7 +115,7 @@ export default function StartCampaignPage() {
                   onChange={(e) => setCampaignName(e.target.value)}
                 />
               </Field>
-              <Field label="Organization logo (optional)" hint="PNG or SVG works best. We'll center it on your campaign page.">
+              <Field label="Church logo (optional)" hint="PNG or SVG works best. We'll center it on your campaign page.">
                 <div className="flex items-center gap-4">
                   <label className="btn-secondary cursor-pointer">
                     <input type="file" accept="image/*" className="hidden" onChange={onLogoChange} />
@@ -201,7 +201,7 @@ export default function StartCampaignPage() {
                 <input
                   id="link"
                   className="input-base"
-                  placeholder="https://yourorg.org/give"
+                  placeholder="https://yourchurch.org/give"
                   value={givingLink}
                   onChange={(e) => setGivingLink(e.target.value)}
                 />
@@ -285,7 +285,7 @@ export default function StartCampaignPage() {
               subtitle="You can edit any of this from your dashboard later."
             >
               <dl className="space-y-3 text-sm">
-                <Row k="Organization" v={orgName || "—"} />
+                <Row k="Church" v={orgName || "—"} />
                 <Row k="Campaign" v={campaignName || "—"} />
                 <Row k="Giving link" v={givingLink || "—"} mono />
                 <Row k="Kingdom Impact Mode" v={kingdom ? "On" : "Off"} />

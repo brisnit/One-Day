@@ -21,7 +21,7 @@ const STEPS = [
   {
     n: "04",
     title: "Give and share.",
-    body: "Use the organization’s giving link/QR code, or share a card that invites someone to calculate theirs.",
+    body: "Use the church’s giving link/QR code, or share a card that invites someone to calculate theirs.",
   },
 ];
 

@@ -8,7 +8,7 @@ import MobileMenu, { type NavLink } from "./MobileMenu";
 const NAV: NavLink[] = [
   { href: "/",                  label: "Home" },
   { href: "/how-it-works",      label: "How it works" },
-  { href: "/for-organizations", label: "For organizations" },
+  { href: "/for-organizations", label: "For churches" },
   { href: "/start",             label: "Start a campaign" },
 ];
 

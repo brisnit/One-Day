@@ -124,7 +124,7 @@ export default function SharePage() {
                 <li>Post the card to your story</li>
                 <li>Text it to a friend with one sentence</li>
                 <li>Print it on a card for your small group</li>
-                <li>Tag your church or organization</li>
+                <li>Tag your church</li>
               </ul>
             </div>
           </div>
