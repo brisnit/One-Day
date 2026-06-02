@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import SiteFooter from "@/components/SiteFooter";
-import { CurrencyInput, Field, NumberInput, Select, Toggle } from "@/components/Field";
+import { CurrencyInput, Field, NumberInput, Select } from "@/components/Field";
 import {
   DEFAULT_WORKDAYS_WITH_TIME_OFF,
   SCHEDULE_WORKDAYS,
@@ -45,11 +45,6 @@ export default function CalculatePage() {
   const [hoursPerWeek, setHoursPerWeek] = useState<number | "">("");
   const [schedule, setSchedule] = useState<WorkSchedule>("7");
   const [customWorkdays, setCustomWorkdays] = useState<number | "">(DEFAULT_WORKDAYS_WITH_TIME_OFF);
-  const [excludeOff, setExcludeOff] = useState(false);
-  const [vacation, setVacation] = useState<number | "">(10);
-  const [sick, setSick] = useState<number | "">(5);
-  const [holidays, setHolidays] = useState<number | "">(10);
-  const [personal, setPersonal] = useState<number | "">(0);
 
   const input: CalculatorInput = useMemo(() => ({
     incomeType,
@@ -58,12 +53,8 @@ export default function CalculatePage() {
     hoursPerWeek: typeof hoursPerWeek === "number" ? hoursPerWeek : undefined,
     schedule,
     customWorkdays: typeof customWorkdays === "number" ? customWorkdays : undefined,
-    excludeDaysOff: excludeOff,
-    vacationDays: typeof vacation === "number" ? vacation : 0,
-    sickDays: typeof sick === "number" ? sick : 0,
-    holidays: typeof holidays === "number" ? holidays : 0,
-    personalDays: typeof personal === "number" ? personal : 0,
-  }), [incomeType, amount, hourlyRate, hoursPerWeek, schedule, customWorkdays, excludeOff, vacation, sick, holidays, personal]);
+    excludeDaysOff: false,
+  }), [incomeType, amount, hourlyRate, hoursPerWeek, schedule, customWorkdays]);
 
   const issues = validate(input);
   const issueByField = Object.fromEntries(issues.map((i) => [i.field, i.message]));
@@ -183,35 +174,6 @@ export default function CalculatePage() {
               </Field>
             )}
 
-            <div className="my-4" />
-
-            <Toggle
-              checked={excludeOff}
-              onChange={setExcludeOff}
-              label="Exclude days off?"
-              description="Subtract vacation, sick days, holidays, and personal days."
-            />
-
-            {excludeOff && (
-              <div className="grid grid-cols-2 gap-4 mt-5">
-                <Field label="Vacation days" htmlFor="vac">
-                  <NumberInput id="vac" value={vacation} onChange={setVacation} suffix="days" />
-                </Field>
-                <Field label="Sick days" htmlFor="sick">
-                  <NumberInput id="sick" value={sick} onChange={setSick} suffix="days" />
-                </Field>
-                <Field label="Holidays" htmlFor="holidays">
-                  <NumberInput id="holidays" value={holidays} onChange={setHolidays} suffix="days" />
-                </Field>
-                <Field label="Personal days" htmlFor="personal">
-                  <NumberInput id="personal" value={personal} onChange={setPersonal} suffix="days" />
-                </Field>
-              </div>
-            )}
-
-            {issueByField["daysOff"] && (
-              <p className="text-sm text-coral mt-3">{issueByField["daysOff"]}</p>
-            )}
           </div>
 
           {/* Live preview */}
