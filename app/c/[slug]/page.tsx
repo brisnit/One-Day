@@ -38,12 +38,14 @@ export default function CampaignLandingPage() {
   }
 
   const accent = campaign.accentColor;
-  // Org-chosen polarity (with fallback to accent luminance for legacy campaigns).
-  // Drives text contrast on the accent panels (quote + ready strip).
-  const explicit = campaign.logoBackground;
-  const isLight = explicit ? explicit === "light" : isLightColor(accent);
-  const onAccent = isLight ? "#000000" : "#ffffff";
-  const onAccentSubtle = isLight ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.65)";
+  // Text contrast on the accent panels (quote + ready strip) is driven purely
+  // by the accent's luminance. This guarantees readable copy even when the
+  // org's logo-style toggle on /start was set the wrong way for their accent
+  // (e.g. "dark logo on light bg" was previously forcing black text onto a
+  // dark accent panel, making the headlines invisible).
+  const isLightAccent = isLightColor(accent);
+  const onAccent = isLightAccent ? "#000000" : "#ffffff";
+  const onAccentSubtle = isLightAccent ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.65)";
 
   return (
     <main>
