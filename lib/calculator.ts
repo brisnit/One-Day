@@ -1,9 +1,7 @@
 import type { CalculatorInput, CalculatorResult, IncomeEntry, IncomeType, WorkSchedule } from "./types";
 
 export const SCHEDULE_WORKDAYS: Record<Exclude<WorkSchedule, "custom">, number> = {
-  "4": 208,
-  "5": 260,
-  "6": 312,
+  "7": 365,
 };
 
 // Recommended default when "Exclude days off" is enabled with no further input

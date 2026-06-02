@@ -26,9 +26,7 @@ const INCOME_OPTIONS: { value: IncomeType; label: string }[] = [
 ];
 
 const SCHEDULE_OPTIONS: { value: WorkSchedule; label: string }[] = [
-  { value: "5",      label: "5 days/week (260)" },
-  { value: "6",      label: "6 days/week (312)" },
-  { value: "4",      label: "4 days/week (208)" },
+  { value: "7",      label: "7 days/week (365)" },
   { value: "custom", label: "Custom" },
 ];
 
@@ -45,7 +43,7 @@ export default function CalculatePage() {
   const [amount, setAmount] = useState<number | "">("");
   const [hourlyRate, setHourlyRate] = useState<number | "">("");
   const [hoursPerWeek, setHoursPerWeek] = useState<number | "">("");
-  const [schedule, setSchedule] = useState<WorkSchedule>("5");
+  const [schedule, setSchedule] = useState<WorkSchedule>("7");
   const [customWorkdays, setCustomWorkdays] = useState<number | "">(DEFAULT_WORKDAYS_WITH_TIME_OFF);
   const [excludeOff, setExcludeOff] = useState(false);
   const [vacation, setVacation] = useState<number | "">(10);

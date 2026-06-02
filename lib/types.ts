@@ -6,7 +6,7 @@ export type IncomeType =
   | "hourly"
   | "household";
 
-export type WorkSchedule = "5" | "6" | "4" | "custom";
+export type WorkSchedule = "7" | "custom";
 
 export interface IncomeEntry {
   id: string;
