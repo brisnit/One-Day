@@ -17,7 +17,7 @@ export default function ResultsPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
   }, [slug]);
 
   const amount = Number(params.get("amount") ?? 0);

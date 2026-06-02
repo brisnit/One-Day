@@ -73,6 +73,28 @@ Intentionally not wired up. The "Give My One Day Offering" button links to whate
 
 ---
 
+## Vercel KV (production persistence)
+
+Campaigns are stored server-side in Vercel KV (managed Redis) so they're shared across browsers and devices — a donor scanning a QR on their phone will find the campaign even though it was created on someone's laptop.
+
+**One-time setup on Vercel:**
+1. Go to your project on vercel.com → **Storage** tab
+2. Click **Create Database** → **KV** (Vercel KV / Upstash Redis)
+3. Pick a region close to your users, click **Create**
+4. On the next screen click **Connect Project** and select this project
+5. Vercel auto-injects four env vars (`KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`) into the project — no manual config needed
+6. Redeploy (it'll happen automatically on the next push)
+
+**Local dev:** the app falls back to `localStorage` if the `KV_*` env vars are missing, so you don't need KV to run `npm run dev`. To use the production KV from local dev, run `npx vercel env pull .env.local` after the `vercel` CLI is connected to your project.
+
+**Data shape in KV:**
+- `campaign:<slug>` → serialized campaign JSON
+- `campaigns:index` → Redis SET of all created slugs (used by the dashboard list)
+
+The two seeded demo campaigns (`/c/convoy-of-hope`, `/c/hope-city-church`) are hard-coded in `lib/mockData.ts` and always available — no KV write needed for those.
+
+---
+
 ## File layout
 
 ```
@@ -84,7 +106,7 @@ app/                  # Next.js App Router pages
 components/           # Reusable UI: Logo, Field, ShareCard, ImpactGrid, QRBlock, …
 lib/
   calculator.ts       # Pure calculation + validation logic
-  storage.ts          # localStorage helpers
+  storage.ts          # KV-first storage layer with localStorage fallback
   mockData.ts         # Demo campaigns + impact categories
   types.ts            # Shared TS types
   format.ts           # Currency + slug helpers

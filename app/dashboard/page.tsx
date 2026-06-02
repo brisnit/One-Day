@@ -11,18 +11,18 @@ export default function DashboardIndexPage() {
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
 
   useEffect(() => {
-    setCampaigns(listCampaigns());
+    listCampaigns().then(setCampaigns);
   }, []);
 
-  function handleDelete(e: React.MouseEvent, c: Campaign) {
+  async function handleDelete(e: React.MouseEvent, c: Campaign) {
     e.preventDefault();
     e.stopPropagation();
     const ok = window.confirm(
-      `Delete "${c.campaignName}"?\n\nThis removes it from your browser. Anyone who already has the campaign link will see a "Campaign not found" message.`
+      `Delete "${c.campaignName}"?\n\nThis removes the campaign from the server. Anyone who already has the campaign link will see a "Campaign not found" message.`
     );
     if (!ok) return;
-    deleteCampaign(c.slug);
-    setCampaigns(listCampaigns());
+    await deleteCampaign(c.slug);
+    setCampaigns(await listCampaigns());
   }
 
   return (

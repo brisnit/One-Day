@@ -41,7 +41,7 @@ export default function FamilyCalculatorPage() {
   const [workdays, setWorkdays] = useState<number | "">(DEFAULT_WORKDAYS_WITH_TIME_OFF);
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
   }, [slug]);
 
   const totalAnnual = useMemo(

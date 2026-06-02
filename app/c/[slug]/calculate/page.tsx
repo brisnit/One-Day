@@ -36,7 +36,7 @@ export default function CalculatePage() {
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
   }, [slug]);
 
   const [incomeType, setIncomeType] = useState<IncomeType>("annual");

@@ -16,7 +16,7 @@ export default function CampaignDashboardPage() {
   const [origin, setOrigin] = useState("");
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
     setOrigin(window.location.origin);
   }, [slug]);
 

@@ -11,11 +11,11 @@ export default function SettingsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
 
   useEffect(() => {
-    setCampaigns(listCampaigns());
+    listCampaigns().then(setCampaigns);
   }, []);
 
-  function refresh() {
-    setCampaigns(listCampaigns());
+  async function refresh() {
+    setCampaigns(await listCampaigns());
   }
 
   function resetAll() {
@@ -56,10 +56,10 @@ export default function SettingsPage() {
                       <Link href={`/dashboard/${c.slug}`} className="btn-tertiary text-sm">Open</Link>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           if (confirm(`Delete "${c.campaignName}"?`)) {
-                            deleteCampaign(c.slug);
-                            refresh();
+                            await deleteCampaign(c.slug);
+                            await refresh();
                           }
                         }}
                         className="text-coral text-sm font-medium hover:underline"

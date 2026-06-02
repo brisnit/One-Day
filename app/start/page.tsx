@@ -51,24 +51,33 @@ export default function StartCampaignPage() {
     return true;
   }
 
-  function finalize() {
-    const slug = ensureUniqueSlug(slugify(orgName + " " + campaignName));
-    const campaign: Campaign = {
-      slug,
-      orgName: orgName.trim(),
-      campaignName: campaignName.trim(),
-      visionStatement: vision.trim(),
-      givingLink: givingLink.trim(),
-      logoDataUrl,
-      logoBackground,
-      accentColor: accent,
-      impactMessage: impactMessage.trim() || undefined,
-      impacts,
-      kingdomImpactMode: kingdom,
-      createdAt: Date.now(),
-    };
-    saveCampaign(campaign);
-    router.push(`/dashboard/${slug}`);
+  const [launching, setLaunching] = useState(false);
+
+  async function finalize() {
+    if (launching) return;
+    setLaunching(true);
+    try {
+      const slug = await ensureUniqueSlug(slugify(orgName + " " + campaignName));
+      const campaign: Campaign = {
+        slug,
+        orgName: orgName.trim(),
+        campaignName: campaignName.trim(),
+        visionStatement: vision.trim(),
+        givingLink: givingLink.trim(),
+        logoDataUrl,
+        logoBackground,
+        accentColor: accent,
+        impactMessage: impactMessage.trim() || undefined,
+        impacts,
+        kingdomImpactMode: kingdom,
+        createdAt: Date.now(),
+      };
+      await saveCampaign(campaign);
+      router.push(`/dashboard/${slug}`);
+    } catch {
+      setLaunching(false);
+      alert("Couldn't save campaign. Please try again.");
+    }
   }
 
   return (
@@ -316,8 +325,8 @@ export default function StartCampaignPage() {
                 Continue →
               </button>
             ) : (
-              <button type="button" onClick={finalize} className="btn-primary">
-                Launch Campaign ✨
+              <button type="button" onClick={finalize} disabled={launching} className="btn-primary">
+                {launching ? "Launching…" : "Launch Campaign ✨"}
               </button>
             )}
           </div>

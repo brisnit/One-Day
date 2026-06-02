@@ -18,7 +18,7 @@ export default function CampaignLandingPage() {
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
   }, [slug]);
 
   if (campaign === undefined) {

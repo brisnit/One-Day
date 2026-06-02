@@ -20,7 +20,7 @@ export default function SharePage() {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCampaign(getCampaign(slug));
+    getCampaign(slug).then(setCampaign);
     setOrigin(window.location.origin);
   }, [slug]);
 
