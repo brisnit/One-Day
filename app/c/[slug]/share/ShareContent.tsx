@@ -26,7 +26,10 @@ export default function SharePage() {
 
   const amount = Number(params.get("amount") ?? 0);
 
-  if (campaign === undefined) {
+  // Block render until BOTH campaign and origin are resolved — the share card
+  // embeds shareUrl into a QR code, and an empty origin would produce a QR
+  // pointing to "/c/<slug>" with no domain.
+  if (campaign === undefined || !origin) {
     return <div className="min-h-screen flex items-center justify-center text-ink/40">Loading…</div>;
   }
   if (campaign === null) {

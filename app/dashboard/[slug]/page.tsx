@@ -20,7 +20,10 @@ export default function CampaignDashboardPage() {
     setOrigin(window.location.origin);
   }, [slug]);
 
-  if (campaign === undefined) {
+  // Block render until BOTH campaign and origin are resolved. Otherwise the QR
+  // could briefly encode just "/c/<slug>" (no domain) before the origin state
+  // update lands, which most QR scanners don't treat as a URL.
+  if (campaign === undefined || !origin) {
     return (
       <main>
         <SiteHeader />
