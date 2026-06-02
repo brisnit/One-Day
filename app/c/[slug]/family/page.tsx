@@ -7,7 +7,7 @@ import Logo from "@/components/Logo";
 import SiteFooter from "@/components/SiteFooter";
 import { CurrencyInput, Field, NumberInput, Select } from "@/components/Field";
 import { annualizeEntry, DEFAULT_WORKDAYS_WITH_TIME_OFF } from "@/lib/calculator";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, isLightColor } from "@/lib/format";
 import { getCampaign } from "@/lib/storage";
 import type { Campaign, IncomeEntry } from "@/lib/types";
 
@@ -81,6 +81,9 @@ export default function FamilyCalculatorPage() {
     return <main className="min-h-screen flex items-center justify-center"><p>Campaign not found.</p></main>;
   }
   const accent = campaign.accentColor;
+  // Same fallback as calculator/results: white when accent is too dark to
+  // read on the dark `surface-ink` preview card.
+  const accentOnDark = isLightColor(accent) ? accent : "#ffffff";
 
   return (
     <main>
@@ -188,7 +191,7 @@ export default function FamilyCalculatorPage() {
               <div className="relative">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-cloud/60">Household One Day</p>
                 <p className="mt-3 font-display font-black leading-none text-[44px] sm:text-[56px] break-words"
-                   style={{ color: accent }}>
+                   style={{ color: accentOnDark }}>
                   {valid ? formatCurrency(oneDay) : "$—"}
                 </p>
                 <div className="mt-6 grid grid-cols-2 gap-3 text-sm">

@@ -7,7 +7,7 @@ import Logo from "@/components/Logo";
 import SiteFooter from "@/components/SiteFooter";
 import ImpactGrid from "@/components/ImpactGrid";
 import { getCampaign } from "@/lib/storage";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, isLightColor } from "@/lib/format";
 import type { Campaign } from "@/lib/types";
 
 export default function ResultsPage() {
@@ -44,6 +44,9 @@ export default function ResultsPage() {
   }
 
   const accent = campaign.accentColor;
+  // Fall back to white for the big $ amount when the accent is too dark to
+  // read on the dark `surface-ink` card.
+  const accentOnDark = isLightColor(accent) ? accent : "#ffffff";
 
   async function copyAmount() {
     try {
@@ -80,7 +83,7 @@ export default function ResultsPage() {
             <p className="text-[11px] uppercase tracking-[0.2em] text-cloud/60 break-words">{campaign.orgName} • {campaign.campaignName}</p>
             <p className="mt-6 text-[12px] uppercase tracking-[0.2em] text-cloud/70">Your One Day Offering</p>
             <p className="mt-3 font-display font-black leading-none text-[56px] sm:text-[72px] md:text-[96px]"
-               style={{ color: accent }}>
+               style={{ color: accentOnDark }}>
               {formatCurrency(amount)}
             </p>
             <p className="mt-8 font-display font-bold text-xl text-cloud/90 leading-relaxed">

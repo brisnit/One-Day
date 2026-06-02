@@ -12,7 +12,7 @@ import {
   calculate,
   validate,
 } from "@/lib/calculator";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatCurrency, formatNumber, isLightColor } from "@/lib/format";
 import { getCampaign } from "@/lib/storage";
 import type { CalculatorInput, IncomeType, WorkSchedule, Campaign } from "@/lib/types";
 
@@ -83,6 +83,10 @@ export default function CalculatePage() {
     );
   }
   const accent = campaign.accentColor;
+  // The dark `surface-ink` cards need a readable foreground for the big result
+  // number. Light accents (amber, mint, sky, etc.) read fine; dark accents
+  // (ink, plum, slate, brand blue) disappear, so fall back to white.
+  const accentOnDark = isLightColor(accent) ? accent : "#ffffff";
 
   return (
     <main>
@@ -183,7 +187,7 @@ export default function CalculatePage() {
                    style={{ background: `radial-gradient(circle at 50% 0%, ${accent}55, transparent 60%)` }} />
               <div className="relative">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-cloud/60">Your One Day Offering</p>
-                <p className="mt-3 font-display font-black leading-none text-[44px] sm:text-[56px] break-words" style={{ color: accent }}>
+                <p className="mt-3 font-display font-black leading-none text-[44px] sm:text-[56px] break-words" style={{ color: accentOnDark }}>
                   {ready ? formatCurrency(result.oneDayOffering) : "$—"}
                 </p>
                 <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
