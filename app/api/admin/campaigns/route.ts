@@ -13,7 +13,11 @@ export async function GET(req: Request) {
   if (!dbAvailable()) {
     return NextResponse.json({ error: "Storage not configured" }, { status: 503 });
   }
-  const slugs = await db.smembers(keys.campaignIndex);
+  // Union of the index and a keyspace scan, so campaigns missing from the
+  // index (e.g. after a partial restore) still show up.
+  const indexed = await db.smembers(keys.campaignIndex);
+  const scanned = (await db.scanKeys("campaign:*")).map((k) => k.slice("campaign:".length));
+  const slugs = [...new Set([...indexed, ...scanned])];
   const summaries: object[] = [];
   // Fetch one at a time so large inline logos don't blow the response limit.
   for (const slug of slugs) {

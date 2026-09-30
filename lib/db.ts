@@ -11,6 +11,8 @@ export interface Db {
   sadd(key: string, member: string): Promise<void>;
   srem(key: string, member: string): Promise<void>;
   smembers(key: string): Promise<string[]>;
+  /** All keys matching a glob pattern (admin use only — walks the keyspace). */
+  scanKeys(pattern: string): Promise<string[]>;
 }
 
 // ONEDAY_NEW_* is the database restored from the archived store in Sept 2026.
@@ -48,6 +50,16 @@ function redisDb(): Db {
       await kv.srem(k, m);
     },
     smembers: async (k) => (await kv.smembers(k)) as string[],
+    scanKeys: async (pattern) => {
+      const found: string[] = [];
+      let cursor: string | number = 0;
+      do {
+        const [next, batch]: [string | number, string[]] = await kv.scan(cursor, { match: pattern, count: 500 });
+        found.push(...batch);
+        cursor = next;
+      } while (String(cursor) !== "0");
+      return found;
+    },
   };
 }
 
@@ -82,6 +94,10 @@ function memoryDb(): Db {
       mem.set(k, { v: ((read(k) as string[]) ?? []).filter((x) => x !== m) });
     },
     smembers: async (k) => [...((read(k) as string[]) ?? [])],
+    scanKeys: async (pattern) => {
+      const re = new RegExp("^" + pattern.split("*").map((p) => p.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+      return [...mem.keys()].filter((k) => re.test(k));
+    },
   };
 }
 
