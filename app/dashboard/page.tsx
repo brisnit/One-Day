@@ -5,21 +5,52 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { deleteCampaign, getMe, listCampaigns, signOut } from "@/lib/storage";
+import {
+  deleteCampaign,
+  findDeviceOnlyCampaigns,
+  getMe,
+  listCampaigns,
+  recoverDeviceCampaign,
+  signOut,
+} from "@/lib/storage";
 import type { Campaign } from "@/lib/types";
 
 export default function DashboardIndexPage() {
   const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
   const [me, setMe] = useState<string | null>(null);
+  const [deviceOnly, setDeviceOnly] = useState<Campaign[]>([]);
+  const [recovering, setRecovering] = useState(false);
+  const [recoverError, setRecoverError] = useState("");
 
   useEffect(() => {
     listCampaigns().then((list) => {
-      if (list === null) router.replace("/login?next=/dashboard");
-      else setCampaigns(list);
+      if (list === null) {
+        router.replace("/login?next=/dashboard");
+        return;
+      }
+      setCampaigns(list);
+      findDeviceOnlyCampaigns().then(setDeviceOnly);
     });
     getMe().then(setMe);
   }, [router]);
+
+  async function handleRecover() {
+    setRecovering(true);
+    setRecoverError("");
+    const failed: Campaign[] = [];
+    for (const c of deviceOnly) {
+      try {
+        await recoverDeviceCampaign(c);
+      } catch (err) {
+        failed.push(c);
+        setRecoverError(err instanceof Error ? err.message : "Couldn't save campaign.");
+      }
+    }
+    setDeviceOnly(failed);
+    setCampaigns((await listCampaigns()) ?? []);
+    setRecovering(false);
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -64,6 +95,31 @@ export default function DashboardIndexPage() {
           </div>
           <Link href="/start" className="btn-primary w-full md:w-auto">+ New Campaign</Link>
         </div>
+
+        {deviceOnly.length > 0 && (
+          <div className="card p-7 mb-6 border-2 border-amber">
+            <h2 className="font-display font-bold text-lg">
+              We found {deviceOnly.length === 1 ? "a campaign" : `${deviceOnly.length} campaigns`} saved only on this device
+            </h2>
+            <p className="mt-1 text-sm text-ink/60">
+              Save {deviceOnly.length === 1 ? "it" : "them"} to your login so donors on any device can
+              open {deviceOnly.length === 1 ? "it" : "them"} and you can edit from anywhere. Your link
+              and QR code stay the same.
+            </p>
+            <ul className="mt-3 text-sm list-disc list-inside text-ink/80">
+              {deviceOnly.map((c) => (
+                <li key={c.slug}>
+                  <span className="font-bold">{c.orgName}</span> — {c.campaignName}{" "}
+                  <span className="font-mono text-xs text-ink/50">/c/{c.slug}</span>
+                </li>
+              ))}
+            </ul>
+            <button type="button" onClick={handleRecover} disabled={recovering} className="btn-primary mt-5">
+              {recovering ? "Saving…" : "Save to my account"}
+            </button>
+            {recoverError && <p className="mt-3 text-sm text-coral">{recoverError}</p>}
+          </div>
+        )}
 
         {campaigns === null ? (
           <div className="card p-8 text-ink/50">Loading…</div>

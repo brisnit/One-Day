@@ -153,6 +153,38 @@ export async function ensureUniqueSlug(slug: string): Promise<string> {
   return `${slug}-${Date.now().toString(36)}`;
 }
 
+// ─── Device-only campaigns ─────────────────────────────────────────────────
+// While the database was offline (Jul–Sep 2026) new campaigns were saved only
+// in the creating browser's localStorage. Surface them after sign-in so the
+// church can move them onto their account.
+
+async function onServer(slug: string): Promise<boolean> {
+  const { status } = await fetchJson(`/api/campaigns/${encodeURIComponent(slug)}?fresh=1`, {
+    cache: "no-store",
+  });
+  return status === 200;
+}
+
+export async function findDeviceOnlyCampaigns(): Promise<Campaign[]> {
+  const local = readLegacyAll().filter((c) => !DEMO_CAMPAIGNS.some((d) => d.slug === c.slug));
+  const checks = await Promise.all(local.map((c) => onServer(c.slug)));
+  return local.filter((_, i) => !checks[i]);
+}
+
+export async function recoverDeviceCampaign(campaign: Campaign): Promise<Campaign> {
+  const { downscaleDataUrl } = await import("./image");
+  const logoDataUrl = campaign.logoDataUrl && (await downscaleDataUrl(campaign.logoDataUrl));
+  const { ownerId: _ownerId, ...rest } = campaign;
+  const saved = await saveCampaign({ ...rest, logoDataUrl });
+  try {
+    window.localStorage.setItem(
+      LEGACY_FULL_KEY,
+      JSON.stringify(readLegacyAll().filter((c) => c.slug !== campaign.slug))
+    );
+  } catch {}
+  return saved;
+}
+
 // ─── Auth ──────────────────────────────────────────────────────────────────
 
 export async function getMe(): Promise<string | null> {
