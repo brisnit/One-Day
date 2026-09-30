@@ -67,7 +67,7 @@ Supports six income types (annual, monthly, biweekly, weekly, hourly, household)
 
 ### Storage & logins
 
-Campaigns, church logins and sessions live in Vercel KV (Upstash Redis) — see below. Logins are free and self-hosted: passwords are hashed with scrypt, sessions are random tokens in an httpOnly cookie (30 days). Each campaign has an `ownerId`; only that login can edit or delete it. Local dev without `KV_*` env vars uses an in-memory store (reset on restart).
+Campaigns, church logins and sessions live in Vercel KV (Upstash Redis) — see below. Logins are free and self-hosted: passwords are hashed with scrypt, sessions are random tokens in an httpOnly cookie (30 days). Each campaign has an `ownerId`; only that login can edit or delete it. Local dev without `ONEDAY_NEW_KV_*` (or legacy `KV_*`) env vars uses an in-memory store (reset on restart).
 
 **Church logins for existing campaigns / password resets** (there's no email service, so resets are manual):
 

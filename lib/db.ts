@@ -13,8 +13,10 @@ export interface Db {
   smembers(key: string): Promise<string[]>;
 }
 
-const url = process.env.KV_REST_API_URL;
-const token = process.env.KV_REST_API_TOKEN;
+// ONEDAY_NEW_* is the database restored from the archived store in Sept 2026.
+// The original KV_* vars point at the archived (dead) host; kept only as a fallback.
+const url = process.env.ONEDAY_NEW_KV_REST_API_URL || process.env.KV_REST_API_URL;
+const token = process.env.ONEDAY_NEW_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
 
 export function dbAvailable(): boolean {
   return Boolean(url && token) || process.env.NODE_ENV !== "production";
