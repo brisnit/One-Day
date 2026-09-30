@@ -11,19 +11,11 @@ export default function SettingsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
 
   useEffect(() => {
-    listCampaigns().then(setCampaigns);
+    listCampaigns().then((list) => setCampaigns(list ?? []));
   }, []);
 
   async function refresh() {
-    setCampaigns(await listCampaigns());
-  }
-
-  function resetAll() {
-    if (!confirm("Remove all locally-saved campaigns? This restores the demo data.")) return;
-    try {
-      window.localStorage.removeItem("odo.campaigns.v1");
-    } catch {}
-    refresh();
+    setCampaigns((await listCampaigns()) ?? []);
   }
 
   return (
@@ -36,9 +28,10 @@ export default function SettingsPage() {
 
         <div className="mt-8 space-y-4">
           <div className="card p-7">
-            <h2 className="font-display font-bold text-xl">Local campaigns</h2>
+            <h2 className="font-display font-bold text-xl">Your campaigns</h2>
             <p className="mt-2 text-sm text-ink/60">
-              Campaigns you create are stored in your browser&rsquo;s localStorage. They&rsquo;re not synced to any server.
+              Campaigns owned by your church login.{" "}
+              <Link href="/login?next=/settings" className="underline">Sign in</Link> to see yours.
             </p>
             {campaigns === null ? (
               <p className="mt-4 text-ink/40">Loading…</p>
@@ -58,7 +51,7 @@ export default function SettingsPage() {
                         type="button"
                         onClick={async () => {
                           if (confirm(`Delete "${c.campaignName}"?`)) {
-                            await deleteCampaign(c.slug);
+                            await deleteCampaign(c.slug).catch(() => {});
                             await refresh();
                           }
                         }}
@@ -71,9 +64,6 @@ export default function SettingsPage() {
                 ))}
               </ul>
             )}
-            <button onClick={resetAll} type="button" className="btn-secondary mt-5">
-              Reset to demo data
-            </button>
           </div>
 
           <div className="card p-7">

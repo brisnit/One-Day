@@ -7,16 +7,16 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import QRBlock from "@/components/QRBlock";
 import CopyableLink from "@/components/CopyableLink";
-import { getCampaign } from "@/lib/storage";
+import { getCampaignForOwner } from "@/lib/storage";
 import type { Campaign } from "@/lib/types";
 
 export default function CampaignDashboardPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
+  const [campaign, setCampaign] = useState<(Campaign & { canEdit: boolean }) | null | undefined>(undefined);
   const [origin, setOrigin] = useState("");
 
   useEffect(() => {
-    getCampaign(slug).then(setCampaign);
+    getCampaignForOwner(slug).then(setCampaign);
     setOrigin(window.location.origin);
   }, [slug]);
 
@@ -63,6 +63,11 @@ export default function CampaignDashboardPage() {
           {campaign.visionStatement && (
             <p className="mt-4 text-ink/70 max-w-3xl">{campaign.visionStatement}</p>
           )}
+          {campaign.canEdit && (
+            <Link href={`/dashboard/${campaign.slug}/edit`} className="btn-primary mt-6 inline-flex">
+              Edit campaign
+            </Link>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6">
@@ -88,7 +93,23 @@ export default function CampaignDashboardPage() {
                 <Row k="Custom logo" v={campaign.logoDataUrl ? "Uploaded" : "Default (One Day Calculator)"} />
               </dl>
               <p className="mt-5 text-xs text-ink/50">
-                Want to change something? Re-run setup to spin up a new campaign — or edit in code at <code className="font-mono">lib/storage.ts</code>.
+                {campaign.canEdit ? (
+                  <>
+                    Want to change something?{" "}
+                    <Link href={`/dashboard/${campaign.slug}/edit`} className="underline">
+                      Edit this campaign
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  <>
+                    Is this your church&rsquo;s campaign?{" "}
+                    <Link href={`/login?next=/dashboard/${campaign.slug}`} className="underline">
+                      Sign in
+                    </Link>{" "}
+                    to edit it.
+                  </>
+                )}
               </p>
             </div>
 

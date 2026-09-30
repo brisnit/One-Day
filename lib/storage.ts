@@ -3,171 +3,180 @@
 import type { Campaign } from "./types";
 import { DEMO_CAMPAIGNS, SAMPLE_CAMPAIGN } from "./mockData";
 
-// localStorage keys
-// - MY_SLUGS_KEY: which campaign slugs THIS browser created (so /dashboard
-//   shows the user's own campaigns rather than every campaign ever created).
-// - LEGACY_FULL_KEY: pre-KV storage where the entire campaign objects lived
-//   client-side. We still read it as a fallback when the server is unavailable
-//   so the app keeps working in dev / before KV is connected.
-const MY_SLUGS_KEY = "odo.mycampaigns.v1";
+// Pre-login builds kept whole campaigns in localStorage when the server was
+// unavailable. Still read as a last-resort fallback so those links keep
+// working on the device that created them.
 const LEGACY_FULL_KEY = "odo.campaigns.v1";
-
-// ─── localStorage helpers ─────────────────────────────────────────────────
-
-function readMySlugs(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(MY_SLUGS_KEY);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(parsed) ? (parsed as string[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeMySlugs(slugs: string[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(MY_SLUGS_KEY, JSON.stringify(slugs));
-}
-
-function rememberMySlug(slug: string) {
-  const slugs = readMySlugs();
-  if (!slugs.includes(slug)) {
-    slugs.unshift(slug);
-    writeMySlugs(slugs);
-  }
-}
-
-function forgetMySlug(slug: string) {
-  writeMySlugs(readMySlugs().filter((s) => s !== slug));
-}
+const CACHE_PREFIX = "odo.campaign.";
 
 function readLegacyAll(): Campaign[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(LEGACY_FULL_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
     return Array.isArray(parsed) ? (parsed as Campaign[]) : [];
   } catch {
     return [];
   }
 }
 
-function writeLegacyAll(campaigns: Campaign[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(LEGACY_FULL_KEY, JSON.stringify(campaigns));
+// ─── Campaign cache ────────────────────────────────────────────────────────
+// Donors move landing → calculate → results → share, and every page needs the
+// campaign. Cache it (memory + sessionStorage) so only the first page fetches.
+
+const memCache = new Map<string, Campaign>();
+const inflight = new Map<string, Promise<Campaign | null>>();
+
+function readCache(slug: string): Campaign | null {
+  const hit = memCache.get(slug);
+  if (hit) return hit;
+  try {
+    const raw = window.sessionStorage.getItem(CACHE_PREFIX + slug);
+    if (raw) {
+      const c = JSON.parse(raw) as Campaign;
+      memCache.set(slug, c);
+      return c;
+    }
+  } catch {}
+  return null;
 }
 
-// ─── safeFetch: never throws, treats 5xx/404 as "no data" ──────────────────
+function writeCache(c: Campaign) {
+  memCache.set(c.slug, c);
+  try {
+    window.sessionStorage.setItem(CACHE_PREFIX + c.slug, JSON.stringify(c));
+  } catch {}
+}
 
-async function safeFetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T | null> {
+function dropCache(slug: string) {
+  memCache.delete(slug);
+  try {
+    window.sessionStorage.removeItem(CACHE_PREFIX + slug);
+  } catch {}
+}
+
+// ─── Fetch helpers ─────────────────────────────────────────────────────────
+
+async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<{ status: number; data: T | null }> {
   try {
     const res = await fetch(input, init);
-    if (!res.ok) return null;
-    if (res.status === 204) return null;
-    return (await res.json()) as T;
+    const data = res.status === 204 ? null : ((await res.json().catch(() => null)) as T | null);
+    return { status: res.status, data };
   } catch {
-    return null;
+    return { status: 0, data: null };
   }
 }
 
-async function safeFetchOk(input: RequestInfo, init?: RequestInit): Promise<boolean> {
-  try {
-    const res = await fetch(input, init);
-    return res.ok;
-  } catch {
-    return false;
-  }
+function errorMessage(data: unknown, fallback: string): string {
+  const msg = (data as { error?: string } | null)?.error;
+  return typeof msg === "string" ? msg : fallback;
 }
 
-// ─── Public API ────────────────────────────────────────────────────────────
+// ─── Campaigns ─────────────────────────────────────────────────────────────
 
 export async function getCampaign(slug: string): Promise<Campaign | null> {
-  // Hard-coded demos are always available client-side.
   const demo = DEMO_CAMPAIGNS.find((c) => c.slug === slug);
   if (demo) return demo;
 
-  // Try server (KV). Returns null on 404 or if KV isn't configured.
-  const fromServer = await safeFetchJson<Campaign>(
-    `/api/campaigns/${encodeURIComponent(slug)}`
-  );
-  if (fromServer) return fromServer;
+  const cached = readCache(slug);
+  if (cached) return cached;
 
-  // Fallback for offline / KV-not-configured: legacy localStorage.
-  const local = readLegacyAll().find((c) => c.slug === slug);
-  return local ?? null;
+  let pending = inflight.get(slug);
+  if (!pending) {
+    pending = (async () => {
+      const { status, data } = await fetchJson<Campaign>(`/api/campaigns/${encodeURIComponent(slug)}`);
+      if (status === 200 && data) {
+        writeCache(data);
+        return data;
+      }
+      return readLegacyAll().find((c) => c.slug === slug) ?? null;
+    })();
+    inflight.set(slug, pending);
+    pending.finally(() => inflight.delete(slug));
+  }
+  return pending;
 }
 
-export async function listCampaigns(): Promise<Campaign[]> {
-  const mySlugs = readMySlugs();
-  const localCampaigns = readLegacyAll();
-
-  // Nothing tracked yet: show demos plus anything left in legacy localStorage.
-  if (mySlugs.length === 0) {
-    return localCampaigns.length > 0
-      ? [...localCampaigns, ...DEMO_CAMPAIGNS]
-      : DEMO_CAMPAIGNS;
-  }
-
-  // We have a list of slugs the user created. Try the server first.
-  const fromServer = await safeFetchJson<Campaign[]>(
-    `/api/campaigns?slugs=${mySlugs.map(encodeURIComponent).join(",")}`
+/** Uncached read for the owner dashboard. `canEdit` is true for the signed-in owner. */
+export async function getCampaignForOwner(
+  slug: string
+): Promise<(Campaign & { canEdit: boolean }) | null> {
+  const demo = DEMO_CAMPAIGNS.find((c) => c.slug === slug);
+  if (demo) return { ...demo, canEdit: false };
+  const { status, data } = await fetchJson<Campaign & { canEdit: boolean }>(
+    `/api/campaigns/${encodeURIComponent(slug)}?fresh=1`,
+    { cache: "no-store" }
   );
+  return status === 200 ? data : null;
+}
 
-  if (fromServer) {
-    // Server responded — even if empty, treat as authoritative for these slugs.
-    return [...fromServer, ...DEMO_CAMPAIGNS];
-  }
-
-  // Server unavailable — fall back to whatever's in legacy storage.
-  return localCampaigns.length > 0
-    ? [...localCampaigns, ...DEMO_CAMPAIGNS]
-    : DEMO_CAMPAIGNS;
+/** Campaigns owned by the signed-in account, or null when signed out. */
+export async function listCampaigns(): Promise<Campaign[] | null> {
+  const { status, data } = await fetchJson<Campaign[]>(`/api/campaigns`, { cache: "no-store" });
+  if (status === 401) return null;
+  return data ?? [];
 }
 
 export async function saveCampaign(campaign: Campaign): Promise<Campaign> {
-  // Always remember the slug locally so /dashboard knows it's "mine".
-  rememberMySlug(campaign.slug);
-
-  const saved = await safeFetchJson<Campaign>(`/api/campaigns`, {
+  const { status, data } = await fetchJson<Campaign>(`/api/campaigns`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(campaign),
   });
-
-  if (saved) return saved;
-
-  // Server unavailable — write to legacy localStorage as a fallback so the
-  // wizard still completes successfully in dev / before KV is connected.
-  const all = readLegacyAll();
-  const idx = all.findIndex((c) => c.slug === campaign.slug);
-  if (idx === -1) all.unshift(campaign);
-  else all[idx] = campaign;
-  writeLegacyAll(all);
-  return campaign;
+  if (status !== 200 || !data) {
+    throw new Error(errorMessage(data, "Couldn't save campaign. Please try again."));
+  }
+  writeCache(data);
+  return data;
 }
 
 export async function deleteCampaign(slug: string): Promise<void> {
-  await safeFetchOk(`/api/campaigns/${encodeURIComponent(slug)}`, {
+  const { status, data } = await fetchJson(`/api/campaigns/${encodeURIComponent(slug)}`, {
     method: "DELETE",
   });
-  // Always tidy up local state.
-  writeLegacyAll(readLegacyAll().filter((c) => c.slug !== slug));
-  forgetMySlug(slug);
+  if (status !== 204 && status !== 200) {
+    throw new Error(errorMessage(data, "Couldn't delete campaign."));
+  }
+  dropCache(slug);
 }
 
 export async function ensureUniqueSlug(slug: string): Promise<string> {
-  if (!(await getCampaign(slug))) return slug;
-  let i = 2;
-  // Loop until we find an unused slug. Caps at 100 to avoid pathological runs.
-  while (i < 100) {
+  const taken = async (s: string) =>
+    DEMO_CAMPAIGNS.some((c) => c.slug === s) ||
+    (await fetchJson(`/api/campaigns/${encodeURIComponent(s)}?fresh=1`, { cache: "no-store" }))
+      .status === 200;
+  if (!(await taken(slug))) return slug;
+  for (let i = 2; i < 100; i++) {
     const candidate = `${slug}-${i}`;
-    if (!(await getCampaign(candidate))) return candidate;
-    i++;
+    if (!(await taken(candidate))) return candidate;
   }
-  // Extremely unlikely escape hatch.
   return `${slug}-${Date.now().toString(36)}`;
+}
+
+// ─── Auth ──────────────────────────────────────────────────────────────────
+
+export async function getMe(): Promise<string | null> {
+  const { status, data } = await fetchJson<{ id: string }>(`/api/auth/me`, { cache: "no-store" });
+  return status === 200 && data ? data.id : null;
+}
+
+async function authPost(path: string, email: string, password: string): Promise<string> {
+  const { status, data } = await fetchJson<{ id: string }>(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (status !== 200 || !data) {
+    throw new Error(errorMessage(data, "Something went wrong. Please try again."));
+  }
+  return data.id;
+}
+
+export const signIn = (email: string, password: string) => authPost("/api/auth/login", email, password);
+export const signUp = (email: string, password: string) => authPost("/api/auth/signup", email, password);
+
+export async function signOut(): Promise<void> {
+  await fetchJson(`/api/auth/logout`, { method: "POST" });
 }
 
 export { SAMPLE_CAMPAIGN };

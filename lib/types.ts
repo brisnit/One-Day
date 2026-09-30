@@ -65,4 +65,6 @@ export interface Campaign {
   impacts: ImpactItem[];
   kingdomImpactMode: boolean;
   createdAt: number;
+  /** Account id (email/username) that can edit this campaign. Server-only. */
+  ownerId?: string;
 }

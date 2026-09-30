@@ -2,17 +2,29 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { deleteCampaign, listCampaigns } from "@/lib/storage";
+import { deleteCampaign, getMe, listCampaigns, signOut } from "@/lib/storage";
 import type { Campaign } from "@/lib/types";
 
 export default function DashboardIndexPage() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
+  const [me, setMe] = useState<string | null>(null);
 
   useEffect(() => {
-    listCampaigns().then(setCampaigns);
-  }, []);
+    listCampaigns().then((list) => {
+      if (list === null) router.replace("/login?next=/dashboard");
+      else setCampaigns(list);
+    });
+    getMe().then(setMe);
+  }, [router]);
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/login");
+  }
 
   async function handleDelete(e: React.MouseEvent, c: Campaign) {
     e.preventDefault();
@@ -21,8 +33,12 @@ export default function DashboardIndexPage() {
       `Delete "${c.campaignName}"?\n\nThis removes the campaign from the server. Anyone who already has the campaign link will see a "Campaign not found" message.`
     );
     if (!ok) return;
-    await deleteCampaign(c.slug);
-    setCampaigns(await listCampaigns());
+    try {
+      await deleteCampaign(c.slug);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Couldn't delete campaign.");
+    }
+    setCampaigns((await listCampaigns()) ?? []);
   }
 
   return (
@@ -37,6 +53,14 @@ export default function DashboardIndexPage() {
             <h1 className="mt-2 font-display font-black text-[32px] sm:text-[40px] md:text-h2 leading-tight">
               Your campaigns
             </h1>
+            {me && (
+              <p className="mt-2 text-sm text-ink/60">
+                Signed in as <span className="font-bold text-ink">{me}</span> ·{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-ink">
+                  Sign out
+                </button>
+              </p>
+            )}
           </div>
           <Link href="/start" className="btn-primary w-full md:w-auto">+ New Campaign</Link>
         </div>

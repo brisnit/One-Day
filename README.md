@@ -21,7 +21,7 @@ npm run dev
 open http://localhost:3000
 ```
 
-You'll need Node 18.18+ (Node 20 recommended). No env vars required — there's no backend.
+You'll need Node 18.18+ (Node 20 recommended). No env vars required — without KV it uses an in-memory store.
 
 ### Production build (optional)
 
@@ -41,9 +41,11 @@ npm run start
 | `/` | Public homepage |
 | `/how-it-works` | Explainer page |
 | `/for-organizations` | Pitch for campaign leaders |
-| `/start` | 4-step org setup wizard (logo, accent, vision, Kingdom Impact Mode) |
-| `/dashboard` | List of saved campaigns |
+| `/start` | 4-step org setup wizard (logo, accent, vision, Kingdom Impact Mode); creates the church login on the last step |
+| `/login` | Church login (sign in / create login) |
+| `/dashboard` | The signed-in church's campaigns (redirects to `/login`) |
 | `/dashboard/[slug]` | Single campaign dashboard with copyable link + QR code |
+| `/dashboard/[slug]/edit` | Edit a campaign (owner only) — same wizard as `/start` |
 | `/c/[slug]` | Branded donor landing page |
 | `/c/[slug]/calculate` | Calculator (6 income types, schedules, day-off exclusion) |
 | `/c/[slug]/results` | Big result card + impact grid + giving CTA |
@@ -63,9 +65,18 @@ One Day Offering = Annual Income ÷ Estimated Workdays
 
 Supports six income types (annual, monthly, biweekly, weekly, hourly, household) and four schedules (4/5/6 days/week, or custom). When *Exclude days off* is on, vacation/sick/holidays/personal days are subtracted from the base.
 
-### Storage
+### Storage & logins
 
-Campaigns created in the setup wizard are persisted to the browser's `localStorage` under `odo.campaigns.v1`. Two demo campaigns ship pre-loaded. There is **no backend**.
+Campaigns, church logins and sessions live in Vercel KV (Upstash Redis) — see below. Logins are free and self-hosted: passwords are hashed with scrypt, sessions are random tokens in an httpOnly cookie (30 days). Each campaign has an `ownerId`; only that login can edit or delete it. Local dev without `KV_*` env vars uses an in-memory store (reset on restart).
+
+**Church logins for existing campaigns / password resets** (there's no email service, so resets are manual):
+
+```bash
+python3 tools/church_login.py list                                # every campaign + its owner
+python3 tools/church_login.py create <email-or-username> <slug>   # prints a new password
+```
+
+Needs `ADMIN_SECRET` in `.env` (same value as the `ADMIN_SECRET` env var on Vercel).
 
 ### Payments
 
@@ -87,9 +98,14 @@ Campaigns are stored server-side in Vercel KV (managed Redis) so they're shared 
 
 **Local dev:** the app falls back to `localStorage` if the `KV_*` env vars are missing, so you don't need KV to run `npm run dev`. To use the production KV from local dev, run `npx vercel env pull .env.local` after the `vercel` CLI is connected to your project.
 
+**Keep-alive:** Upstash archives free databases after a stretch of inactivity (this took every campaign offline in July 2026). `vercel.json` runs `/api/cron/keepalive` daily to prevent it. If it ever happens again: Vercel dashboard → Storage → create a new Upstash Redis DB (to get into the Upstash console) → Upstash console → inactive databases → **Restore**.
+
 **Data shape in KV:**
-- `campaign:<slug>` → serialized campaign JSON
-- `campaigns:index` → Redis SET of all created slugs (used by the dashboard list)
+- `campaign:<slug>` → serialized campaign JSON (includes `ownerId`, never returned publicly)
+- `campaigns:index` → Redis SET of all created slugs
+- `account:<id>` → `{ id, passwordHash, createdAt }`
+- `account:<id>:campaigns` → Redis SET of slugs that login owns
+- `session:<token>` → account id (30-day TTL)
 
 The two seeded demo campaigns (`/c/convoy-of-hope`, `/c/hope-city-church`) are hard-coded in `lib/mockData.ts` and always available — no KV write needed for those.
 
@@ -130,7 +146,7 @@ Pulled from `brand assets/Brand Guidelines.png`:
 
 ## Known prototype limits
 
-- No auth — `/dashboard` shows whatever campaigns exist in *your* browser's localStorage.
+- No self-serve password reset — use `tools/church_login.py create` to set a new one.
 - Share-card PNG download uses `html-to-image`; on Safari, fonts in the rendered PNG can occasionally fall back. Take a screenshot if the download looks off.
 - No real payments. The giving CTA opens the org's pasted URL.
 - QR codes encode the campaign URL on whatever `window.location.origin` is — they'll point at `localhost:3000` until deployed.

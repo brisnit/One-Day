@@ -10,6 +10,7 @@ const NAV: NavLink[] = [
   { href: "/how-it-works",      label: "How it works" },
   { href: "/for-churches", label: "For churches" },
   { href: "/start",             label: "Start a campaign" },
+  { href: "/dashboard",         label: "Church login" },
 ];
 
 export default function SiteHeader({ variant = "public" }: { variant?: "public" | "campaign" }) {
