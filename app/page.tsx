@@ -7,6 +7,7 @@ const HOMEPAGE_NAV: NavLink[] = [
   { href: "/how-it-works",      label: "How it works" },
   { href: "/for-churches", label: "For churches" },
   { href: "/start",             label: "Start a campaign" },
+  { href: "/dashboard",         label: "Church login" },
 ];
 
 export default function HomePage() {
@@ -61,6 +62,12 @@ export default function HomePage() {
               Start a Campaign →
             </Link>
           </div>
+          <p className="mt-5 text-sm text-ink/60">
+            Already have a campaign?{" "}
+            <Link href="/dashboard" className="font-bold text-ink underline hover:text-amber-pressed">
+              Church login
+            </Link>
+          </p>
         </div>
       </section>
 
